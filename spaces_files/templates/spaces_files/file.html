@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+
+{% block content %}
+
+<div class="panel panel-default">
+<div class="panel-body">
+
+<h2>{{ file.get_name }}</h2>
+
+{% if file.description %}
+<p>
+<strong>{% trans 'Description' %}:</strong><br>
+	{{ file.description }}
+</p>
+{% endif %}
+<p>
+<strong>{% trans 'File size' %}:</strong> {{ file.file.size|filesizeformat }}
+</p>
+<p>
+<strong>{% trans 'Uploaded at' %}:</strong> {{ file.created_at }}
+</p>
+<p>
+<a href="{{ file.file.url }}" class="btn btn-default btn-lg"><span class="icon icon-download"></span> {% trans 'Download' %}</a>
+</p>
+
+</div>
+</div>
+{% endblock content %}

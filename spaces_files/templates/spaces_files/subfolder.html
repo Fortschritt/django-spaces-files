@@ -1,0 +1,33 @@
+{% extends 'spaces_files/index.html' %}
+
+{% load i18n mptt_tags%}
+
+{% block heading %}<h1>{{ folder.name }}</h1>{% endblock %}
+
+{% block head_buttons %}
+<div class="m-t m-b">
+<a href="{% url 'spaces_files:index' %}">Start</a> »
+{% for f in folder.get_ancestors %}
+	<a href="{{ f.get_absolute_url }}">{{ f.name }}</a>
+	 » 
+{% endfor %}
+{{ folder.name }}
+</div>
+<div class="m-t m-b">
+  <a href="{% url 'spaces_files:add_folder' folder.pk %}" class="btn btn-default"><span class="icon icon-folder">
+    {% trans 'Add Folder' %}
+  </a>
+  <a href="{% url 'spaces_files:add_file' folder.pk %}" class="btn btn-default"><span class="icon icon-document">
+    {% trans 'Add File' %}
+  </a>
+{% comment %}
+<a href="{% if folder.parent %}{{ folder.parent.get_absolute_url }}{% else %}{% url 'spaces_files:index' %}{% endif %}"
+	class="btn btn-default">
+	<span class="icon icon-arrow-up">
+	{% trans 'Navigate up' %}
+	</span>
+</a>
+{% endcomment %}
+</div>
+
+{% endblock %}

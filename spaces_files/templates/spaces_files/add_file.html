@@ -1,0 +1,14 @@
+{% extends 'collab/plugin.html' %}
+
+{% load i18n widget_tweaks %}
+
+{% block content %}
+<div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+<div class="panel panel-default">
+<div class="panel-body">
+	<h1>{% if form.instance.file %}{% trans 'Edit File' %} <small class="text-muted">{{ form.instance }}</small>{% else %}{% trans 'New File' %}{% endif %}</h1>
+	{% include 'spaces_files/includes/form.html' %}
+</div>
+</div>
+</div>
+{% endblock content %}

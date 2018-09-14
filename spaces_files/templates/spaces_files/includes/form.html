@@ -1,0 +1,36 @@
+
+{% load i18n widget_tweaks %}
+
+    <form enctype="multipart/form-data" method="POST" class="post-form">{% csrf_token %}
+      {% for field in form %}
+		{% if field.is_hidden %}
+		  {{ field }}
+		{% else %}
+		  <div id="div_{{ field.auto_id }}" class="form-group{% if field.errors %} has-error{% endif %}">
+		    <div class="">
+		   	  {% if field.label %}
+			    <label for="{{ field.id_for_label }}" class="control-label {% if field.field.required %}requiredField{% endif%}">
+			    {% trans field.label|safe %}{% if field.field.required %}<span class="asteriskField">*</span>{% endif %}:
+			    </label>
+			  {% endif %}
+			</div>
+		    <div class="">
+		      {{ field|add_class:"form-control" }}
+		      {% if field.errors %}
+		        {% for error in field.errors %}
+		          <div id="error_{{ forloop.counter }}_{{ field.auto_id }}" class="help-block"><strong>{{ error }}</strong>
+		        {% endfor %}
+		      {% endif %}
+		      {% if field.help_text %}
+		        <p id="hint_{{ field.auto_id }}" class="help-block">{{ field.help_text|safe }}</p>
+		      {% endif %}
+		    </div>
+		  </div>
+		{% endif %}
+		
+	  {% endfor %}
+	  {% if notification_formset %}
+		  {% include "spaces_notifications/form.html" %}
+	  {% endif %}
+      <button type="submit" class="save btn btn-primary">{% trans 'Save' %}</button>
+    </form>

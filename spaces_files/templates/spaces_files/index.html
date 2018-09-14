@@ -1,0 +1,32 @@
+{% extends 'collab/plugin.html' %}
+
+{% load i18n mptt_tags %}
+
+{% block body_class %}{{ block.super }} files{% endblock %}
+
+{% block content %}
+
+<div class="panel panel-default">
+<div class="panel-body">
+
+{% block heading %}<h1>{% trans 'Files' %} <small class="text-muted">{% trans 'for' %} {{ space.name }}</small></h1>{% endblock heading %}
+
+{% block head_buttons %}
+<div class="m-t m-b btn-create">
+  <a href="{% url 'spaces_files:add_folder' %}" class="btn btn-default"><span class="icon icon-folder">
+	{% trans 'Add Folder' %}
+  </a>
+{% comment %}
+  <a href="{% url 'spaces_files:add_file' %}" class="btn btn-default"><span class="icon icon-document">
+	{% trans 'Add File' %}
+  </a>
+{% endcomment %}
+</div>
+{% endblock %}
+
+{% include 'spaces_files/folders.html' %}
+
+{% endblock content %}
+
+</div>
+</div>

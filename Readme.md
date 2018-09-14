@@ -1,0 +1,1 @@
+MEDIA_ROOT and MEDIA_URL should be set

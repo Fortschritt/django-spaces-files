@@ -1,0 +1,87 @@
+
+{% load i18n mptt_tags sekizai_tags files_tags %}
+
+<div class="table-responsive">
+<table class="table table-striped">
+  <thead>
+    <tr>
+	  <th>{% trans 'Name' %}</th>
+	  <th>{% trans 'Size' %}</th>
+	  <th>{% trans 'Options' %}</th>
+	</tr>
+  </thead>
+  <tbody>
+    {% recursetree folders %}
+      <tr class="{% for an in node.get_ancestors %}{% if forloop.last %}collapse{% else %}grandchild-of-{% endif%}{{an.id}} {%endfor%} {% if node.parent_id %}collapse {% if folder and folder.id == node.id or folder.id == node.parent.id %}in{% endif %}{% endif %}" >
+	  <td style="padding-left: calc( 2 * {{node.level}}em);">
+		{% if not node.is_leaf_node or node.file_set.all.count %}
+		<a href=".collapse{{node.id}}" data-toggle="collapse"><span class="icon icon-triangle-{% if folder and folder.id == node.id %}down{% else %}right{% endif %}"></span></a>
+		{% else %}
+			<span class="icon icon-triangle-up" style="visibility:hidden"></span>		
+		{% endif %}
+		<span class="icon icon-folder"></span>
+		<a href="{% url 'spaces_files:folder' node.id %}">{{ node.name }}</a>
+	  </td>
+	  <td><span class="text-muted">-</span></td>
+	  <td>
+				<a href="{% url 'spaces_files:folder' node.id %}" class="btn btn-default" title="{% trans 'Direct link to this folder' %}"><span class="icon icon-link"></span></a>
+				<a href="{% url 'spaces_files:edit_folder' node.id %}" class="btn btn-default btn-edit {% disabled_if_not_owner user node space %}" title="{% trans 'Edit this folder' %}"><span class="icon icon-edit"></span></a>
+				<a href="{% url 'spaces_files:delete_folder' pk=node.pk %}" class="btn btn-default btn-delete {% disabled_if_not_owner user node space %}" title="{% trans 'Delete this folder' %}"><span class="icon icon-trash"></a>
+	  </td>
+	  </tr>
+      {% if not node.is_leaf_node %}
+            {{ children }}
+      {% endif %}
+
+	  {% for file in node.file_set.all %}
+	    <tr class="collapse{{node.id}} {% for an in node.get_ancestors %}grandchild-of-{{an.id}} {% endfor %} collapse {% if folder and folder.id == node.id %}in{% endif %}">
+          <td style="padding-left: calc(2 * {{node.level}}em + 2em);">
+		    <span class="icon icon-document"></span>
+			<a href="{{ file.file.url }}">{{ file.get_name }}</a>
+		  </td>
+		  <td>{{file.file.size|filesizeformat}}
+		  </td>
+		  <td>
+			<a href="{% url 'spaces_files:file' file.id %}" class="btn btn-default" title="{% trans 'Direct link to this file' %}"><span class="icon icon-link"></a>
+			<a href="{% url 'spaces_files:edit_file' file.id %}" class="btn btn-default btn-edit {% disabled_if_not_owner user file space %}" title="{% trans 'Edit this file' %}"><span class="icon icon-edit"></span></a>
+			<a href="{% url 'spaces_files:delete_file' pk=file.pk %}" class="btn btn-default btn-delete {% disabled_if_not_owner user file space %}" title="{% trans 'Delete this file' %}"><span class="icon icon-trash"></a>
+		  </td>
+		</tr>
+	  {% endfor %}
+    {% endrecursetree %}
+  </tbody>
+</table>
+</div>
+
+{% addtoblock 'js' %}
+	<script type="text/javascript">
+		var selector = 'a[data-toggle="collapse"]';
+		$(selector).on('click', function(ev) {
+			// on collapse toggle, ensure that all descendent folders get/opened/closed, too
+			// (toggling alone doesn't handle some edge cases)
+			var action = ($(ev.target).hasClass('icon-triangle-right')) ? 'show' : 'hide';
+			var target = $(ev.target).parent().attr('href');
+			var grandchildren = target.replace('.collapse','.grandchild-of-')
+			if (action == 'hide') {
+				// hide immediate target
+				$(target).css('height','1px');
+				$(target).one('bsTransitionEnd', function(ev) {$(target).collapse(action)});
+				// hide all children
+				$(grandchildren).collapse('hide');
+				// reset carets of children
+				$(target).find('[data-toggle="collapse"] span.icon')
+                    .removeClass('icon-triangle-down')
+                    .addClass('icon-triangle-right');
+				// and reset carets of grandchildren
+				$(grandchildren).each(function() {
+					$(this).find('[data-toggle="collapse"] span.icon')
+					.removeClass('icon-triangle-down')
+					.addClass('icon-triangle-right');
+				});
+			}
+			// toggle folder caret of this row
+			$(ev.target).toggleClass('icon-triangle-right icon-triangle-down');
+		});
+
+	</script>
+{% endaddtoblock %}
