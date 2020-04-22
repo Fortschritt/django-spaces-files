@@ -1,4 +1,7 @@
 from django.apps import AppConfig
+from django.db.models.signals import post_delete, post_migrate
+
+from spaces_files.signals import create_notice_types, auto_delete_file_on_delete
 
 
 class SpacesFilesConfig(AppConfig):
@@ -13,6 +16,7 @@ class SpacesFilesConfig(AppConfig):
         registry.register(File)
 
         # register a custom notification
+        """
         from spaces_notifications.utils import register_notification
         from django.utils.translation import ugettext_noop as _
         register_notification(
@@ -25,3 +29,6 @@ class SpacesFilesConfig(AppConfig):
             _('A file has been modified.'),
             _('A file has been modified.')
         )
+        """
+        post_migrate.connect(create_notice_types, sender=self)
+        post_delete.connect(auto_delete_file_on_delete, sender=File)
