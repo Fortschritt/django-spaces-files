@@ -1,14 +1,15 @@
-import time
-from django.core.urlresolvers import reverse
-from django.db import models
-from spaces.models import Space,SpacePluginRegistry, SpacePlugin, SpaceModel
 from os.path import basename
+import time
+
 from django.conf import settings
+from django.db import models
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+
 from mptt.models import MPTTModel, TreeForeignKey
 from private_media.storages import PrivateMediaStorage
 
-
+from spaces.models import Space,SpacePluginRegistry, SpacePlugin, SpaceModel
 
 def file_upload_path(instance, filename):
     space = instance.parent.file_manager.space.slug
@@ -34,9 +35,16 @@ class Folder(MPTTModel):
     """
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    file_manager = models.ForeignKey(SpacesFiles)
-    parent = TreeForeignKey('self', blank=True, null=True, related_name='children', db_index=True, verbose_name=_('parent folder'))
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL)
+    file_manager = models.ForeignKey(SpacesFiles, on_delete=models.CASCADE)
+    parent = TreeForeignKey(
+        'self', 
+        blank=True, 
+        null=True, 
+        related_name='children', 
+        db_index=True, 
+        verbose_name=_('parent folder'),
+        on_delete=models.CASCADE)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -60,8 +68,12 @@ class File(SpaceModel):
     name = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(blank=True, null=True)
     file = models.FileField(upload_to=file_upload_path, storage=PrivateMediaStorage())
-    parent = TreeForeignKey(Folder, db_index=True, verbose_name=_('parent folder'))
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL)
+    parent = TreeForeignKey(
+        Folder, 
+        db_index=True, 
+        verbose_name=_('parent folder'),
+        on_delete=models.CASCADE)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     spaceplugin_field_name = "parent__file_manager"
