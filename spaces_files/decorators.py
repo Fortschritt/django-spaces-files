@@ -8,7 +8,7 @@ def file_owner_or_admin_required(func):
     nor a space administrator or manager.
     """
     def _decorator(self, *args, **kwargs):
-        if self.request.user and self.request.user.is_authenticated():
+        if self.request.user and self.request.user.is_authenticated:
             is_allowed = is_owner_or_admin(
                 self.request.user, 
                 self.get_object().created_by,
