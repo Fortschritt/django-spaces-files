@@ -81,6 +81,7 @@ class File(SpaceModel):
     class Meta:
         verbose_name = _('file')
         verbose_name_plural = _('files')
+        ordering = ["name"]
 
     def __str__(self):
         return self.get_name()
@@ -90,6 +91,12 @@ class File(SpaceModel):
 
     def get_absolute_url(self):
         return reverse('spaces_files:file', args=[str(self.id)])
+
+    def save(self, **kwargs):
+        # if the user doesn't provide a name, copy the filename
+        if not self.name:
+            self.name = basename(self.file.name)
+        super().save(**kwargs)
 
 
 class FilesPlugin(SpacePluginRegistry):
